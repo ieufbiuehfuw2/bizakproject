@@ -1,0 +1,353 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Подписка на рост — демо</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="app-shell">
+    <div class="phone">
+      <header class="topbar">
+        <div class="status">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="brand">GROWTH SYSTEM</div>
+        <button class="ghost" id="backFab" aria-label="Назад">← Назад</button>
+      </header>
+
+      <main class="screen screen-role" id="roleScreen">
+        <section class="hero">
+          <div class="label">ВЫБОР РОЛИ</div>
+          <h1>Кто вы сегодня?</h1>
+          <p class="lead">Выберите сценарий: покупатель получает полезные функции, владелец бизнеса — доступ к подписке и заявке на карту.</p>
+        </section>
+
+        <section class="role-actions">
+          <button class="primary" id="buyerBtn">Я покупатель</button>
+          <button class="secondary" id="ownerBtn">Я владелец бизнеса</button>
+        </section>
+      </main>
+
+      <main class="screen screen-buyer" id="buyerScreen">
+        <section class="hero">
+          <div class="label">ДЛЯ ПОКУПАТЕЛЕЙ</div>
+          <h1>Инструменты для умных покупок</h1>
+          <p class="lead">Подберите лучшее предложение, сравните акции и получите персональные рекомендации.</p>
+        </section>
+
+        <section class="cards">
+          <div class="card">
+            <h3>Подбор лучших предложений</h3>
+            <p>Собираем скидки по бьюти-сфере рядом с вами.</p>
+          </div>
+          <div class="card">
+            <h3>Сравнение цен</h3>
+            <p>Сравните цены на популярные услуги и товары в одном месте.</p>
+          </div>
+          <div class="card">
+            <h3>Персональные промокоды</h3>
+            <p>Получайте промокоды под ваш интерес и историю покупок.</p>
+          </div>
+          <div class="card">
+            <h3>Календарь выгод</h3>
+            <p>Уведомим о горячих акциях и сезонных распродажах.</p>
+          </div>
+        </section>
+
+        <section class="actions">
+          <button class="primary" id="buyerStartBtn">Подобрать предложения</button>
+        </section>
+
+        <section class="message" id="buyerMessage"></section>
+
+        <section class="map-block">
+          <div class="map-header">
+            <div class="label">КАРТА ПАРТНЕРОВ</div>
+            <h2>Астрахань: бьюти-индустрия рядом</h2>
+            <p class="lead">Нажмите на значки, чтобы увидеть рейтинг, скидки, промокоды и горячие предложения.</p>
+          </div>
+          <div class="map" id="astrakhanMap"></div>
+        </section>
+      </main>
+
+      <main class="screen screen-owner" id="ownerScreen">
+        <section class="hero">
+          <div class="label">ДОБАВИТЬ БИЗНЕС</div>
+          <h1>Предложите ваш бизнес на карту Астрахани</h1>
+          <p class="lead">Заполните данные и подтвердите, что вы владелец или уполномоченный представитель.</p>
+        </section>
+
+        <section class="owner-form">
+          <div class="field">
+            <label for="bizName">Название бизнеса</label>
+            <input id="bizName" type="text" placeholder="Например, Salon Aura" />
+          </div>
+          <div class="field">
+            <label for="bizAddress">Адрес</label>
+            <input id="bizAddress" type="text" placeholder="Астрахань, ул. ..." />
+          </div>
+          <div class="field">
+            <label for="bizType">Категория</label>
+            <select id="bizType">
+              <option value="Парикмахерская">Парикмахерская</option>
+              <option value="Бьюти-магазин">Бьюти-магазин</option>
+              <option value="Маникюр">Маникюр</option>
+              <option value="Студия ресниц">Студия ресниц</option>
+              <option value="Брови и макияж">Брови и макияж</option>
+              <option value="SPA">SPA</option>
+              <option value="Косметология">Косметология</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bizContacts">Контакты</label>
+            <input id="bizContacts" type="text" placeholder="Телефон, WhatsApp, Instagram" />
+          </div>
+          <div class="field">
+            <label for="bizReviews">Ссылка на отзывы (если есть)</label>
+            <input id="bizReviews" type="url" placeholder="https://..." />
+          </div>
+          <div class="field">
+            <label for="bizMaps">Ссылка на Google Maps или 2ГИС</label>
+            <input id="bizMaps" type="url" placeholder="https://maps.app.goo.gl/..." />
+          </div>
+          <div class="field">
+            <label for="bizPromo">Промокод для скидки</label>
+            <input id="bizPromo" type="text" placeholder="Например, ASTRA10" />
+          </div>
+          <div class="field">
+            <label for="bizOffer">Горячее предложение</label>
+            <input id="bizOffer" type="text" placeholder="Например, -15% на первый визит" />
+          </div>
+        </section>
+
+        <section class="rules">
+          <div class="label">ПРАВИЛА ПРОЕКТА</div>
+          <ul>
+            <li>Минимум одна акция в месяц с промокодом.</li>
+            <li>Обновление ключевой информации при изменении услуг или адреса.</li>
+            <li>Ответы на отзывы в течение 72 часов.</li>
+            <li>Актуальные контакты и корректные ссылки на карты.</li>
+          </ul>
+          <label class="checkbox">
+            <input type="checkbox" id="bizConfirmRules" />
+            Я согласен с правилами проекта
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="bizConfirmOwner" />
+            Подтверждаю, что я владелец или представитель бизнеса
+          </label>
+        </section>
+
+        <section class="actions">
+          <button class="primary" id="submitBizBtn">Отправить заявку</button>
+        </section>
+
+        <section class="message" id="ownerMessage"></section>
+      </main>
+
+      <main class="screen screen-owner-subscription" id="ownerSubscriptionScreen">
+        <section class="hero">
+          <div class="label">ПОДПИСКА ДЛЯ ВЛАДЕЛЬЦЕВ</div>
+          <h1>Выберите формат участия в системе</h1>
+          <p class="lead">Подписка открывает доступ к аудитам, связкам и продвижению на карте партнёров.</p>
+        </section>
+
+        <section class="slider" id="ownerSlider">
+          <div class="slides" id="ownerSlidesTrack">
+            <div class="slide">
+              <div class="card">
+                <h3>Ежемесячный аудит</h3>
+                <p>Разбор воронки и рекомендации для роста бизнеса.</p>
+              </div>
+              <div class="card">
+                <h3>Креативы и тексты</h3>
+                <p>Готовые связки для запуска рекламы.</p>
+              </div>
+              <div class="card">
+                <h3>Продвижение на карте</h3>
+                <p>Приоритетные места и участие в промо-подборках.</p>
+              </div>
+            </div>
+            <div class="slide">
+              <div class="card">
+                <h3>Подписка</h3>
+                <p>Доступ к системе поддержки для владельцев бизнеса.</p>
+              </div>
+              <div class="card highlight">
+                <h3>Годовой план</h3>
+                <p>Выгоднее: скидка и бонусные месяцы.</p>
+              </div>
+              <section class="plans">
+                <button class="plan active" data-plan="month">
+                  <div class="title">Месяц</div>
+                  <div class="subtitle">9 900 RUB • Оплата ежемесячно</div>
+                </button>
+                <button class="plan" data-plan="year">
+                  <div class="title">Год</div>
+                  <div class="subtitle">99 000 RUB • 2 месяца в подарок</div>
+                </button>
+              </section>
+              <section class="actions">
+                <button class="primary" id="ownerSubscribeBtn">Оформить подписку (демо)</button>
+              </section>
+            </div>
+          </div>
+          <div class="slider-footer">
+            <div class="dots">
+              <span class="dot active" data-dot="0"></span>
+              <span class="dot" data-dot="1"></span>
+            </div>
+            <button class="ghost" id="ownerNextSlideBtn">Следующий слайд</button>
+          </div>
+        </section>
+
+        <section class="map-block">
+          <div class="map-header">
+            <div class="label">КАРТА ПАРТНЕРОВ</div>
+            <h2>Астрахань: бьюти-индустрия рядом</h2>
+            <p class="lead">Нажмите на значки, чтобы увидеть рейтинг, скидки, промокоды и горячие предложения.</p>
+          </div>
+          <div class="map" id="astrakhanMapOwner"></div>
+        </section>
+
+        <section class="actions">
+          <button class="primary" id="openOwnerFormBtn">Добавить мой бизнес на карты</button>
+        </section>
+      </main>
+
+      <main class="screen screen-offer" id="offerScreen">
+        <section class="hero">
+          <div class="label">ПОДПИСКА НА РОСТ</div>
+          <h1>Свайп вправо, чтобы перейти к подписке.</h1>
+          <p class="lead">Все действия демонстрационные и не запускают реальные платежи.</p>
+        </section>
+
+        <section class="slider" id="offerSlider">
+          <div class="slides" id="slidesTrack">
+            <div class="slide">
+              <div class="card">
+                <h3>Книга</h3>
+                <p>Практическая методика по привлечению клиентов.</p>
+              </div>
+              <div class="card">
+                <h3>Чат</h3>
+                <p>Закрытое сообщество с разбором кейсов и новыми каналами.</p>
+              </div>
+              <div class="card">
+                <h3>Ежемесячный аудит</h3>
+                <p>Проверка воронки и конкретные точки роста.</p>
+              </div>
+              <div class="card">
+                <h3>Готовые связки</h3>
+                <p>Тексты, креативы и скрипты под текущий рынок.</p>
+              </div>
+            </div>
+
+            <div class="slide">
+              <div class="card">
+                <h3>Подписка</h3>
+                <p>Доступ к системе каждый месяц и обновления по рынку.</p>
+              </div>
+              <div class="card highlight">
+                <h3>Годовая подписка</h3>
+                <p>Выгоднее: скидка и бонусные месяцы.</p>
+              </div>
+
+              <section class="plans">
+                <button class="plan active" data-plan="month">
+                  <div class="title">Месяц</div>
+                  <div class="subtitle">9 900 RUB • Оплата ежемесячно</div>
+                </button>
+                <button class="plan" data-plan="year">
+                  <div class="title">Год</div>
+                  <div class="subtitle">99 000 RUB • 2 месяца в подарок</div>
+                </button>
+              </section>
+
+              <section class="actions">
+                <button class="primary" id="subscribeBtn">Оформить подписку (демо)</button>
+              </section>
+            </div>
+          </div>
+
+          <div class="slider-footer">
+            <div class="dots">
+              <span class="dot active" data-dot="0"></span>
+              <span class="dot" data-dot="1"></span>
+            </div>
+            <button class="ghost" id="nextSlideBtn">Следующий слайд</button>
+          </div>
+        </section>
+
+        <section class="note">
+          <p>Проект презентационный. Оплаты, трансферы и отправка книги только имитируются.</p>
+        </section>
+
+        <section class="message" id="offerMessage"></section>
+
+      </main>
+
+      <main class="screen screen-cabinet" id="cabinetScreen">
+        <section class="hero">
+          <div class="label">ЛИЧНЫЙ КАБИНЕТ</div>
+          <h2>Доступ активирован в демо-режиме.</h2>
+          <p class="lead">Кнопки ниже показывают имитацию выдачи контента.</p>
+        </section>
+
+        <section class="cards">
+          <div class="card action" data-action="book">
+            <h3>Книга</h3>
+            <p>Открыть методику в демо-режиме.</p>
+            <span class="chip">Открыть</span>
+          </div>
+          <div class="card action" data-action="chat">
+            <h3>Чат</h3>
+            <p>Войти в сообщество и посмотреть обсуждения.</p>
+            <span class="chip">Войти</span>
+          </div>
+          <div class="card action" data-action="audit">
+            <h3>Ежемесячный аудит</h3>
+            <p>Онлайн-трансляция с чатом (демо).</p>
+            <span class="chip">Смотреть</span>
+          </div>
+          <div class="card action" data-action="bundle">
+            <h3>Готовые связки</h3>
+            <p>Получить тексты, креативы и скрипты.</p>
+            <span class="chip">Получить</span>
+          </div>
+        </section>
+
+        <section class="message" id="cabinetMessage"></section>
+
+      </main>
+    </div>
+  </div>
+
+
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <h3 id="modalTitle">Демо-оплата</h3>
+      <p id="modalText">Это имитация покупки. Реального списания нет.</p>
+      <div class="modal-input" id="modalInputWrap">
+        <input id="modalInput" type="text" placeholder="Город, улица, дом" />
+      </div>
+      <div class="modal-actions">
+        <button class="secondary" id="modalCancel">Отмена</button>
+        <button class="primary" id="modalConfirm">Подтвердить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
