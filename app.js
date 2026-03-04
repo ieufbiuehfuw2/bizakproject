@@ -4,354 +4,492 @@ const buyerScreen = document.getElementById("buyerScreen");
 const offerScreen = document.getElementById("offerScreen");
 const cabinetScreen = document.getElementById("cabinetScreen");
 const ownerSubscriptionScreen = document.getElementById("ownerSubscriptionScreen");
+
 const offerMessage = document.getElementById("offerMessage");
 const cabinetMessage = document.getElementById("cabinetMessage");
-const subscribeBtn = document.getElementById("subscribeBtn");
-const transferBtn = document.getElementById("transferBtn");
-const bookBtn = document.getElementById("bookBtn");
-const backFab = document.getElementById("backFab");
-const buyerBtn = document.getElementById("buyerBtn");
-const ownerBtn = document.getElementById("ownerBtn");
-const buyerStartBtn = document.getElementById("buyerStartBtn");
 const buyerMessage = document.getElementById("buyerMessage");
-const ownerBackBtn = document.getElementById("ownerBackBtn");
-const openOwnerFormBtn = document.getElementById("openOwnerFormBtn");
-const ownerSubscriptionBackBtn = document.getElementById("ownerSubscriptionBackBtn");
-const ownerSubscribeBtn = document.getElementById("ownerSubscribeBtn");
-const ownerSlider = document.getElementById("ownerSlider");
-const ownerSlidesTrack = document.getElementById("ownerSlidesTrack");
-const ownerNextSlideBtn = document.getElementById("ownerNextSlideBtn");
-const ownerDots = document.querySelectorAll("#ownerSlider .dots .dot");
-const submitBizBtn = document.getElementById("submitBizBtn");
 const ownerMessage = document.getElementById("ownerMessage");
-const bizName = document.getElementById("bizName");
-const bizAddress = document.getElementById("bizAddress");
-const bizType = document.getElementById("bizType");
-const bizContacts = document.getElementById("bizContacts");
-const bizReviews = document.getElementById("bizReviews");
-const bizMaps = document.getElementById("bizMaps");
-const bizPromo = document.getElementById("bizPromo");
-const bizOffer = document.getElementById("bizOffer");
-const bizConfirmRules = document.getElementById("bizConfirmRules");
-const bizConfirmOwner = document.getElementById("bizConfirmOwner");
+
+const subscribeBtn = document.getElementById("subscribeBtn");
+
+const backFab = document.getElementById("backFab");
+const navBuyer = document.getElementById("navBuyer");
+const navOwner = document.getElementById("navOwner");
+const navSubscription = document.getElementById("navSubscription");
+const navCabinet = document.getElementById("navCabinet");
+const buyerStartBtn = document.getElementById("buyerStartBtn");
+const buyerPointsValue = document.getElementById("buyerPointsValue");
+const buyerStreakValue = document.getElementById("buyerStreakValue");
+const buyerLevelValue = document.getElementById("buyerLevelValue");
+const questVisit3Progress = document.getElementById("questVisit3Progress");
+const questVisit6Progress = document.getElementById("questVisit6Progress");
+const questVisit10Progress = document.getElementById("questVisit10Progress");
+const questVisit3State = document.getElementById("questVisit3State");
+const questVisit6State = document.getElementById("questVisit6State");
+const questVisit10State = document.getElementById("questVisit10State");
+const openOwnerFormBtn = document.getElementById("openOwnerFormBtn");
+const subRoleBuyer = document.getElementById("subRoleBuyer");
+const subRoleOwner = document.getElementById("subRoleOwner");
+const subPanelBuyer = document.getElementById("subPanelBuyer");
+const subPanelOwner = document.getElementById("subPanelOwner");
+
 const offerSlider = document.getElementById("offerSlider");
 const slidesTrack = document.getElementById("slidesTrack");
 const nextSlideBtn = document.getElementById("nextSlideBtn");
-const dots = document.querySelectorAll(".dots .dot");
+const dots = document.querySelectorAll("#offerSlider .dots .dot");
+
 const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 const modalText = document.getElementById("modalText");
 const modalInputWrap = document.getElementById("modalInputWrap");
 const modalInput = document.getElementById("modalInput");
 const modalConfirm = document.getElementById("modalConfirm");
-const modalCancel = document.getElementById("modalCancel");
-const themeToggle = document.getElementById("toggleTheme");
+const modalClose = document.getElementById("modalClose");
+const topToast = document.getElementById("topToast");
 
-let currentPlan = "month";
-let hasSubscription = false;
+const submitBizBtn = document.getElementById("submitBizBtn");
+const bizName = document.getElementById("bizName");
+const bizAddress = document.getElementById("bizAddress");
+const bizContacts = document.getElementById("bizContacts");
+const bizType = document.getElementById("bizType");
+const bizConfirmRules = document.getElementById("bizConfirmRules");
+const bizConfirmOwner = document.getElementById("bizConfirmOwner");
+
+const ownerPlanCards = document.querySelectorAll("[data-owner-tier]");
+const ownerPriceLite = document.getElementById("ownerPriceLite");
+const ownerPricePlus = document.getElementById("ownerPricePlus");
+const ownerPricePro = document.getElementById("ownerPricePro");
+
+const buyerPlanCards = document.querySelectorAll("[data-buyer-tier]");
+const buyerPriceLite = document.getElementById("buyerPriceLite");
+const buyerPricePlus = document.getElementById("buyerPricePlus");
+const buyerPricePro = document.getElementById("buyerPricePro");
+const subscriptionContextTitle = document.getElementById("subscriptionContextTitle");
+const subscriptionContextDesc = document.getElementById("subscriptionContextDesc");
+const modalBillingWrap = document.getElementById("modalBillingWrap");
+const modalBillingMonth = document.getElementById("modalBillingMonth");
+const modalBillingYear = document.getElementById("modalBillingYear");
+
+let ownerBilling = "month";
+let ownerTier = "lite";
+let buyerBilling = "month";
+let buyerTier = "lite";
+let paymentContext = "owner";
+
+let offerSlide = 0;
 let modalMode = "payment";
-let currentSlide = 0;
-let pointerStartX = 0;
-let isSwiping = false;
-let ownerSlide = 0;
 const screenHistory = [];
+let subscriptionRole = "buyer";
+let buyerPoints = 260;
+let buyerVisits = 0;
+const buyerCompletedQuests = new Set();
+const verifiedVisitedSpots = new Set();
+const spotVerifyState = {};
+const buyerMarkersById = new Map();
 
-const planButtons = document.querySelectorAll(".plan");
-const cabinetActions = document.querySelectorAll(".card.action");
+const buyerMissions = [
+  { id: "visit3", target: 3, reward: 30, progressEl: questVisit3Progress, stateEl: questVisit3State },
+  { id: "visit6", target: 6, reward: 60, progressEl: questVisit6Progress, stateEl: questVisit6State },
+  { id: "visit10", target: 10, reward: 100, progressEl: questVisit10Progress, stateEl: questVisit10State }
+];
 
-const planLabels = {
-  month: "9 900 RUB",
-  year: "99 000 RUB"
+const buyerSpots = [
+  { id: "hleb", name: "Пекарня ДомХлеб", type: "Пекарня", rating: "4.8", discount: "Скидка 15% на утренние наборы", promo: "HLEB15", hot: "Кофе в подарок к выпечке", coords: [46.3518, 48.0602] },
+  { id: "dom24", name: "Магазин У Дома 24", type: "Продуктовый магазин", rating: "4.6", discount: "Скидка 10% на бытовые товары", promo: "DOM10", hot: "2 по цене 1 на часть позиций", coords: [46.3499, 48.0665] },
+  { id: "clean", name: "Мастерская Чисто", type: "Химчистка", rating: "4.7", discount: "Скидка 20% на первый заказ", promo: "CLEAN20", hot: "Экспресс-чистка за 1 день", coords: [46.3571, 48.0578] },
+  { id: "ugol", name: "Кофейня Угол", type: "Кофейня", rating: "4.9", discount: "Каждый 3-й напиток -30%", promo: "UGOL30", hot: "Сет десерт + кофе за 299", coords: [46.3622, 48.0701] },
+  { id: "lavka", name: "Минимаркет Лавка", type: "Магазин у дома", rating: "4.5", discount: "Скидка 12% на готовую еду", promo: "LAVKA12", hot: "Комбо-ланч до 16:00", coords: [46.3448, 48.0720] },
+  { id: "testo", name: "Булочная Тесто", type: "Булочная", rating: "4.8", discount: "Скидка 20% после 20:00", promo: "TESTO20", hot: "2 круассана + кофе по спеццене", coords: [46.3409, 48.0614] },
+  { id: "gadget", name: "Ремонт GadgetPro", type: "Сервисный центр", rating: "4.7", discount: "Диагностика бесплатно", promo: "GADGET", hot: "Замена стекла за 1 час", coords: [46.3660, 48.0489] },
+  { id: "flower", name: "Цветы Букетон", type: "Цветочный магазин", rating: "4.8", discount: "Скидка 15% на монобукеты", promo: "FLOWER15", hot: "Букет дня с бесплатной доставкой", coords: [46.3592, 48.0738] },
+  { id: "apteka", name: "Аптека Плюс", type: "Аптека", rating: "4.6", discount: "Скидка 7% на витамины", promo: "HEALTH7", hot: "Набор иммунитет по акции", coords: [46.3476, 48.0746] },
+  { id: "kanc", name: "КанцМаркет", type: "Магазин канцтоваров", rating: "4.5", discount: "Скидка 10% школьникам", promo: "SCHOOL10", hot: "Набор для офиса с бонусом", coords: [46.3554, 48.0791] }
+];
+let toastTimer = null;
+let armedBuyerTier = "";
+let armedOwnerTier = "";
+
+const ownerPrices = {
+  month: {
+    lite: "490 RUB/мес",
+    plus: "990 RUB/мес",
+    pro: "1990 RUB/мес"
+  },
+  year: {
+    lite: "4900 RUB/год",
+    plus: "9900 RUB/год",
+    pro: "19900 RUB/год"
+  }
 };
+
+const buyerPrices = {
+  month: {
+    lite: "149 RUB/мес",
+    plus: "299 RUB/мес",
+    pro: "499 RUB/мес"
+  },
+  year: {
+    lite: "1490 RUB/год",
+    plus: "2990 RUB/год",
+    pro: "4990 RUB/год"
+  }
+};
+
+function getOwnerPlanLabel() {
+  return ownerPrices[ownerBilling][ownerTier];
+}
+
+function getBuyerPlanLabel() {
+  return buyerPrices[buyerBilling][buyerTier];
+}
+
+function updateOwnerPricingUI() {
+  if (!ownerPriceLite || !ownerPricePlus || !ownerPricePro) return;
+  ownerPriceLite.textContent = ownerPrices[ownerBilling].lite;
+  ownerPricePlus.textContent = ownerPrices[ownerBilling].plus;
+  ownerPricePro.textContent = ownerPrices[ownerBilling].pro;
+
+  ownerPlanCards.forEach((card) => {
+    const isActive = card.dataset.ownerTier === ownerTier;
+    card.classList.toggle("active", isActive);
+    card.classList.toggle("confirm-ready", isActive && armedOwnerTier === ownerTier);
+  });
+}
+
+function updateBuyerPricingUI() {
+  if (!buyerPriceLite || !buyerPricePlus || !buyerPricePro) return;
+  buyerPriceLite.textContent = buyerPrices[buyerBilling].lite;
+  buyerPricePlus.textContent = buyerPrices[buyerBilling].plus;
+  buyerPricePro.textContent = buyerPrices[buyerBilling].pro;
+
+  buyerPlanCards.forEach((card) => {
+    const isActive = card.dataset.buyerTier === buyerTier;
+    card.classList.toggle("active", isActive);
+    card.classList.toggle("confirm-ready", isActive && armedBuyerTier === buyerTier);
+  });
+}
 
 function showScreen(target) {
   if (screenHistory[screenHistory.length - 1] !== target) {
     screenHistory.push(target);
   }
-  roleScreen.classList.remove("active");
-  ownerScreen.classList.remove("active");
-  buyerScreen.classList.remove("active");
-  offerScreen.classList.remove("active");
-  cabinetScreen.classList.remove("active");
-  ownerSubscriptionScreen.classList.remove("active");
 
-  if (target === "cabinet") {
-    cabinetScreen.classList.add("active");
-  } else if (target === "owner") {
-    ownerScreen.classList.add("active");
-  } else if (target === "ownerSubscription") {
-    ownerSubscriptionScreen.classList.add("active");
-  } else if (target === "buyer") {
-    buyerScreen.classList.add("active");
-  } else if (target === "role") {
-    roleScreen.classList.add("active");
-  } else {
-    offerScreen.classList.add("active");
-  }
+  [roleScreen, ownerScreen, buyerScreen, offerScreen, cabinetScreen, ownerSubscriptionScreen]
+    .filter(Boolean)
+    .forEach((s) => s.classList.remove("active"));
 
-  updateBackFab();
-  if (target === "buyer") {
-    ensureBuyerMap();
-  }
-  if (target === "ownerSubscription") {
-    ensureOwnerMap();
-  }
+  if (target === "cabinet" && cabinetScreen) cabinetScreen.classList.add("active");
+  else if (target === "owner" && ownerScreen) ownerScreen.classList.add("active");
+  else if (target === "ownerSubscription" && ownerSubscriptionScreen) ownerSubscriptionScreen.classList.add("active");
+  else if (target === "buyer" && buyerScreen) buyerScreen.classList.add("active");
+  else if (target === "role" && roleScreen) roleScreen.classList.add("active");
+  else if (offerScreen) offerScreen.classList.add("active");
+
+  if (target === "buyer") ensureBuyerMap();
+  updateBottomNav(target);
 }
 
-function setSlide(index) {
+function updateBottomNav(target) {
+  const navMap = {
+    buyer: navBuyer,
+    owner: navOwner,
+    ownerSubscription: navSubscription,
+    cabinet: navCabinet
+  };
+  [navBuyer, navOwner, navSubscription, navCabinet].forEach((btn) => {
+    if (!btn) return;
+    btn.classList.remove("active");
+  });
+  if (navMap[target]) navMap[target].classList.add("active");
+}
+
+function setOfferSlide(index) {
+  if (!slidesTrack) return;
   const safeIndex = Math.max(0, Math.min(1, index));
-  currentSlide = safeIndex;
+  offerSlide = safeIndex;
   slidesTrack.style.transform = `translateX(-${safeIndex * 100}%)`;
   dots.forEach((dot) => dot.classList.remove("active"));
-  const activeDot = document.querySelector(`.dots .dot[data-dot="${safeIndex}"]`);
-  if (activeDot) activeDot.classList.add("active");
-}
-
-function setOwnerSlide(index) {
-  const safeIndex = Math.max(0, Math.min(1, index));
-  ownerSlide = safeIndex;
-  ownerSlidesTrack.style.transform = `translateX(-${safeIndex * 100}%)`;
-  ownerDots.forEach((dot) => dot.classList.remove("active"));
-  const activeDot = document.querySelector(`#ownerSlider .dot[data-dot=\"${safeIndex}\"]`);
+  const activeDot = document.querySelector(`#offerSlider .dot[data-dot="${safeIndex}"]`);
   if (activeDot) activeDot.classList.add("active");
 }
 
 function showMessage(el, text) {
+  if (!el) return;
   el.textContent = text;
   el.classList.add("active");
 }
 
 function hideMessage(el) {
+  if (!el) return;
   el.textContent = "";
   el.classList.remove("active");
 }
 
 function openModal(mode) {
+  if (!modal) return;
   modalMode = mode;
-  modalInput.value = "";
+  if (modalInput) modalInput.value = "";
   modal.classList.add("show");
-  modalInputWrap.classList.remove("active");
+  if (modalInputWrap) modalInputWrap.classList.remove("active");
+  if (modalBillingWrap) modalBillingWrap.classList.remove("active");
 
   if (mode === "payment") {
-    modalTitle.textContent = "Демо-оплата";
-    modalText.textContent = `Обрабатываем тестовый платеж ${planLabels[currentPlan]} (имитация).`;
-    modalConfirm.textContent = "Оплатить (демо)";
-  }
-
-  if (mode === "transfer") {
-    modalTitle.textContent = "Демо-трансфер";
-    modalText.textContent = "Имитируем перевод в систему. Реальных денег нет.";
-    modalConfirm.textContent = "Запустить";
-  }
-
-  if (mode === "book") {
-    modalTitle.textContent = "Отправка книги (демо)";
-    modalText.textContent = "Введите адрес. Логистика имитируется.";
-    modalConfirm.textContent = "Отправить";
-    modalInputWrap.classList.add("active");
+    if (modalBillingWrap) modalBillingWrap.classList.add("active");
+    updateModalBillingUI();
+    modalTitle.textContent = "Оплата подписки";
+    modalText.textContent = `Платеж ${getPaymentAmountLabel()}. Подтвердите оплату.`;
+    modalConfirm.textContent = "Оплатить";
   }
 }
 
 function closeModal() {
-  modal.classList.remove("show");
+  if (modal) modal.classList.remove("show");
 }
 
-planButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    planButtons.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentPlan = btn.dataset.plan;
+function showToast(text, durationMs = 2400) {
+  if (!topToast) return;
+  if (toastTimer) clearTimeout(toastTimer);
+  topToast.textContent = text;
+  topToast.classList.add("show");
+  toastTimer = setTimeout(() => {
+    topToast.classList.remove("show");
+  }, durationMs);
+}
+
+function updateBuyerGamificationUI() {
+  if (buyerPointsValue) buyerPointsValue.textContent = String(buyerPoints);
+  if (buyerStreakValue) buyerStreakValue.textContent = String(buyerVisits);
+  if (buyerLevelValue) buyerLevelValue.textContent = getBuyerLevelLabel(buyerPoints);
+  updateMissionProgressUI();
+}
+
+function getBuyerLevelLabel(points) {
+  if (points >= 450) return "Легенда";
+  if (points >= 300) return "Эксперт";
+  if (points >= 170) return "Профи";
+  if (points >= 80) return "Исследователь";
+  return "Новичок";
+}
+
+function updateMissionProgressUI() {
+  buyerMissions.forEach((mission) => {
+    if (mission.progressEl) {
+      mission.progressEl.textContent = `${Math.min(buyerVisits, mission.target)}/${mission.target}`;
+    }
+    if (mission.stateEl) {
+      mission.stateEl.textContent = buyerCompletedQuests.has(mission.id) ? "Выполнено" : "В процессе";
+    }
   });
-});
+}
 
-nextSlideBtn.addEventListener("click", () => {
-  setSlide(currentSlide === 0 ? 1 : 0);
-});
-
-dots.forEach((dot) => {
-  dot.addEventListener("click", () => {
-    const index = Number(dot.dataset.dot || 0);
-    setSlide(index);
+function evaluateBuyerMissions() {
+  let rewardTotal = 0;
+  buyerMissions.forEach((mission) => {
+    if (buyerVisits >= mission.target && !buyerCompletedQuests.has(mission.id)) {
+      buyerCompletedQuests.add(mission.id);
+      rewardTotal += mission.reward;
+    }
   });
-});
-
-offerSlider.addEventListener("pointerdown", (event) => {
-  pointerStartX = event.clientX;
-  isSwiping = true;
-});
-
-offerSlider.addEventListener("pointerup", (event) => {
-  if (!isSwiping) return;
-  const delta = event.clientX - pointerStartX;
-  if (delta < -40) {
-    setSlide(1);
-  } else if (delta > 40) {
-    setSlide(0);
+  if (rewardTotal > 0) {
+    buyerPoints += rewardTotal;
+    showToast(`Квесты обновлены: +${rewardTotal} баллов.`, 2300);
   }
-  isSwiping = false;
-});
-
-offerSlider.addEventListener("pointerleave", () => {
-  isSwiping = false;
-});
-
-subscribeBtn.addEventListener("click", () => openModal("payment"));
-if (transferBtn) {
-  transferBtn.addEventListener("click", () => openModal("transfer"));
-}
-if (bookBtn) {
-  bookBtn.addEventListener("click", () => openModal("book"));
 }
 
-buyerBtn.addEventListener("click", () => showScreen("buyer"));
-ownerBtn.addEventListener("click", () => showScreen("ownerSubscription"));
-if (ownerBackBtn) {
-  ownerBackBtn.addEventListener("click", () => showScreen("role"));
+function getSpotState(spotId) {
+  if (!spotVerifyState[spotId]) spotVerifyState[spotId] = "idle";
+  return spotVerifyState[spotId];
 }
-buyerStartBtn.addEventListener("click", () => {
-  showMessage(buyerMessage, "Подбор запущен. Показаны лучшие предложения поблизости.");
-});
 
-if (ownerSubscriptionBackBtn) {
-  ownerSubscriptionBackBtn.addEventListener("click", () => showScreen("role"));
+function renderSpotPopup(spot) {
+  const state = getSpotState(spot.id);
+  const checked = verifiedVisitedSpots.has(spot.id);
+  const actionHtml = state === "processing"
+    ? '<div class="visit-row"><button class="popup-visit-btn" disabled>Проверяем посещение...</button><span class="verify-spinner"></span></div>'
+    : checked
+      ? '<div class="visit-row"><button class="popup-visit-btn" disabled>Посещение подтверждено</button><span class="verify-check">✓</span></div>'
+      : `<div class="visit-row"><button class="popup-visit-btn" data-spot-id="${spot.id}">Посетил</button></div>`;
+
+  return `<div class="map-popup"><h4>${spot.name}</h4><p>${spot.type} • Рейтинг ${spot.rating}</p><div class="tag">${spot.discount}</div><div class="tag">Промокод: ${spot.promo}</div><div class="tag">Горячее: ${spot.hot}</div>${actionHtml}</div>`;
 }
-openOwnerFormBtn.addEventListener("click", () => showScreen("owner"));
-ownerSubscribeBtn.addEventListener("click", () => openModal("payment"));
 
-ownerNextSlideBtn.addEventListener("click", () => {
-  setOwnerSlide(ownerSlide === 0 ? 1 : 0);
-});
+function refreshSpotPopup(spotId) {
+  const marker = buyerMarkersById.get(spotId);
+  const spot = buyerSpots.find((item) => item.id === spotId);
+  if (!marker || !spot) return;
+  const wasOpen = marker.isPopupOpen();
+  marker.setPopupContent(renderSpotPopup(spot));
+  if (wasOpen) marker.openPopup();
+}
 
-ownerDots.forEach((dot) => {
-  dot.addEventListener("click", () => {
-    const index = Number(dot.dataset.dot || 0);
-    setOwnerSlide(index);
-  });
-});
+function verifySpotVisit(spotId) {
+  if (getSpotState(spotId) === "processing" || verifiedVisitedSpots.has(spotId)) return;
+  spotVerifyState[spotId] = "processing";
+  refreshSpotPopup(spotId);
+  showToast("Проверяем посещение и активацию промокода...", 2200);
 
-ownerSlider.addEventListener("pointerdown", (event) => {
-  pointerStartX = event.clientX;
-  isSwiping = true;
-});
+  const delayMs = 2000 + Math.floor(Math.random() * 1001);
+  setTimeout(() => {
+    spotVerifyState[spotId] = "done";
+    if (!verifiedVisitedSpots.has(spotId)) {
+      verifiedVisitedSpots.add(spotId);
+      buyerVisits += 1;
+      buyerPoints += 20;
+      evaluateBuyerMissions();
+      updateBuyerGamificationUI();
+    }
+    refreshSpotPopup(spotId);
+    const toastDuration = 2000 + Math.floor(Math.random() * 1001);
+    showToast("Посещение подтверждено: +20 баллов начислено.", toastDuration);
+  }, delayMs);
+}
 
-ownerSlider.addEventListener("pointerup", (event) => {
-  if (!isSwiping) return;
-  const delta = event.clientX - pointerStartX;
-  if (delta < -40) {
-    setOwnerSlide(1);
-  } else if (delta > 40) {
-    setOwnerSlide(0);
+function setSubscriptionRole(role) {
+  subscriptionRole = role === "owner" ? "owner" : "buyer";
+  if (subRoleBuyer) subRoleBuyer.classList.toggle("active", subscriptionRole === "buyer");
+  if (subRoleOwner) subRoleOwner.classList.toggle("active", subscriptionRole === "owner");
+  if (subPanelBuyer) subPanelBuyer.classList.toggle("active", subscriptionRole === "buyer");
+  if (subPanelOwner) subPanelOwner.classList.toggle("active", subscriptionRole === "owner");
+  if (subscriptionContextTitle && subscriptionContextDesc) {
+    if (subscriptionRole === "buyer") {
+      subscriptionContextTitle.textContent = "Подписка покупателя";
+      subscriptionContextDesc.textContent = "Промокоды, персональные подборки и ранний доступ к новым предложениям.";
+    } else {
+      subscriptionContextTitle.textContent = "Подписка владельца бизнеса";
+      subscriptionContextDesc.textContent = "Лиды, приоритет на карте и аналитика для роста выручки.";
+    }
   }
-  isSwiping = false;
-});
+}
 
-ownerSlider.addEventListener("pointerleave", () => {
-  isSwiping = false;
-});
+function getPaymentAmountLabel() {
+  return paymentContext === "buyer" ? getBuyerPlanLabel() : getOwnerPlanLabel();
+}
 
-submitBizBtn.addEventListener("click", () => {
-  hideMessage(ownerMessage);
-  if (!bizName.value.trim() || !bizAddress.value.trim() || !bizContacts.value.trim()) {
-    showMessage(ownerMessage, "Заполните название, адрес и контакты.");
-    return;
+function updateModalBillingUI() {
+  if (!modalBillingMonth || !modalBillingYear) return;
+  const billing = paymentContext === "buyer" ? buyerBilling : ownerBilling;
+  modalBillingMonth.classList.toggle("active", billing === "month");
+  modalBillingYear.classList.toggle("active", billing === "year");
+}
+
+function setPaymentBilling(billing) {
+  if (paymentContext === "buyer") {
+    buyerBilling = billing;
+    updateBuyerPricingUI();
+  } else {
+    ownerBilling = billing;
+    updateOwnerPricingUI();
   }
-  if (!bizConfirmRules.checked || !bizConfirmOwner.checked) {
-    showMessage(ownerMessage, "Подтвердите правила проекта и статус владельца.");
-    return;
-  }
-  const summary = `Заявка принята: ${bizName.value.trim()} • ${bizType.value}. Мы свяжемся для подтверждения.`;
-  showMessage(ownerMessage, summary);
-});
-
-modalCancel.addEventListener("click", closeModal);
-modal.addEventListener("click", (event) => {
-  if (event.target === modal) closeModal();
-});
-
-modalConfirm.addEventListener("click", () => {
+  updateModalBillingUI();
   if (modalMode === "payment") {
-    hasSubscription = true;
-    showMessage(offerMessage, "Демо-оплата прошла успешно. Доступ к системе открыт.");
-    showScreen("cabinet");
-    closeModal();
-    return;
+    modalText.textContent = `Платеж ${getPaymentAmountLabel()}. Подтвердите оплату.`;
   }
+}
 
-  if (modalMode === "transfer") {
-    showMessage(offerMessage, "Демо-трансфер выполнен. Средства зачислены в тестовом режиме.");
-    closeModal();
-    return;
-  }
-
-  if (modalMode === "book") {
-    const address = modalInput.value.trim() || "адрес не указан";
-    showMessage(offerMessage, `Книга оформлена на демо-отправку по адресу: ${address}`);
-    closeModal();
-  }
-});
-
-cabinetActions.forEach((card) => {
+if (navBuyer) navBuyer.addEventListener("click", () => showScreen("buyer"));
+if (navOwner) navOwner.addEventListener("click", () => showScreen("owner"));
+if (navSubscription) navSubscription.addEventListener("click", () => showScreen("ownerSubscription"));
+if (navCabinet) navCabinet.addEventListener("click", () => showScreen("cabinet"));
+if (buyerStartBtn) {
+  buyerStartBtn.addEventListener("click", () => {
+    updateBuyerGamificationUI();
+    showToast("Прогресс обновлен. Баллы начисляются только после проверки посещения из карточки бизнеса.", 2400);
+  });
+}
+if (openOwnerFormBtn) openOwnerFormBtn.addEventListener("click", () => showScreen("owner"));
+if (subRoleBuyer) subRoleBuyer.addEventListener("click", () => setSubscriptionRole("buyer"));
+if (subRoleOwner) subRoleOwner.addEventListener("click", () => setSubscriptionRole("owner"));
+if (modalBillingMonth) modalBillingMonth.addEventListener("click", () => setPaymentBilling("month"));
+if (modalBillingYear) modalBillingYear.addEventListener("click", () => setPaymentBilling("year"));
+ownerPlanCards.forEach((card) => {
   card.addEventListener("click", () => {
-    const action = card.dataset.action;
-    hideMessage(cabinetMessage);
-
-    if (action === "book") {
-      showMessage(cabinetMessage, "Книга открыта в демо-режиме.");
+    const clickedTier = card.dataset.ownerTier || "lite";
+    if (ownerTier !== clickedTier) {
+      ownerTier = clickedTier;
+      armedOwnerTier = "";
+      updateOwnerPricingUI();
+      return;
     }
-
-    if (action === "chat") {
-      showMessage(cabinetMessage, "Чат открыт в демо-режиме. Сообщения не отправляются.");
+    if (armedOwnerTier !== clickedTier) {
+      armedOwnerTier = clickedTier;
+      updateOwnerPricingUI();
+      return;
     }
-
-    if (action === "audit") {
-      showMessage(cabinetMessage, "Запрошен демо-аудит. Онлайн-трансляция запущена.");
+    paymentContext = "owner";
+    armedOwnerTier = "";
+    updateOwnerPricingUI();
+    openModal("payment");
+  });
+});
+buyerPlanCards.forEach((card) => {
+  card.addEventListener("click", () => {
+    const clickedTier = card.dataset.buyerTier || "lite";
+    if (buyerTier !== clickedTier) {
+      buyerTier = clickedTier;
+      armedBuyerTier = "";
+      updateBuyerPricingUI();
+      return;
     }
-
-    if (action === "bundle") {
-      showMessage(cabinetMessage, "Готовые связки выданы в демо-режиме.");
+    if (armedBuyerTier !== clickedTier) {
+      armedBuyerTier = clickedTier;
+      updateBuyerPricingUI();
+      return;
     }
+    paymentContext = "buyer";
+    armedBuyerTier = "";
+    updateBuyerPricingUI();
+    openModal("payment");
   });
 });
 
-function updateBackFab() {
-  backFab.classList.add("show");
-}
-
-backFab.addEventListener("click", () => {
-  if (screenHistory.length <= 1) return;
-  screenHistory.pop();
-  const previous = screenHistory[screenHistory.length - 1];
-  if (!previous) return;
-  roleScreen.classList.remove("active");
-  ownerScreen.classList.remove("active");
-  buyerScreen.classList.remove("active");
-  offerScreen.classList.remove("active");
-  cabinetScreen.classList.remove("active");
-  ownerSubscriptionScreen.classList.remove("active");
-  if (previous === "cabinet") cabinetScreen.classList.add("active");
-  if (previous === "owner") ownerScreen.classList.add("active");
-  if (previous === "ownerSubscription") ownerSubscriptionScreen.classList.add("active");
-  if (previous === "buyer") buyerScreen.classList.add("active");
-  if (previous === "role") roleScreen.classList.add("active");
-  if (previous === "offer") offerScreen.classList.add("active");
-  updateBackFab();
+if (nextSlideBtn) nextSlideBtn.addEventListener("click", () => setOfferSlide(offerSlide === 0 ? 1 : 0));
+dots.forEach((dot) => {
+  dot.addEventListener("click", () => setOfferSlide(Number(dot.dataset.dot || 0)));
 });
 
-showScreen("role");
-setSlide(0);
-setOwnerSlide(0);
-updateBackFab();
+if (submitBizBtn) {
+  submitBizBtn.addEventListener("click", () => {
+    hideMessage(ownerMessage);
+    if (!bizName.value.trim() || !bizAddress.value.trim() || !bizContacts.value.trim()) {
+      showMessage(ownerMessage, "Заполните название, адрес и контакты.");
+      return;
+    }
+    if (!bizConfirmRules.checked || !bizConfirmOwner.checked) {
+      showMessage(ownerMessage, "Подтвердите правила проекта и статус владельца.");
+      return;
+    }
+    const summary = `Заявка принята: ${bizName.value.trim()} • ${bizType.value}. Мы свяжемся для подтверждения.`;
+    showMessage(ownerMessage, summary);
+  });
+}
 
-if (themeToggle) {
-  themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("theme-dark");
+if (modalClose) modalClose.addEventListener("click", closeModal);
+if (modal) {
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeModal();
+  });
+}
+
+if (modalConfirm) {
+  modalConfirm.addEventListener("click", () => {
+    if (modalMode === "payment") {
+      showScreen("cabinet");
+      closeModal();
+    }
+  });
+}
+
+if (backFab) {
+  backFab.addEventListener("click", () => {
+    if (screenHistory.length <= 1) return;
+    screenHistory.pop();
+    const previous = screenHistory[screenHistory.length - 1];
+    if (previous) showScreen(previous);
   });
 }
 
 const astrakhanMapEl = document.getElementById("astrakhanMap");
-const astrakhanMapOwnerEl = document.getElementById("astrakhanMapOwner");
 let buyerMap = null;
-let ownerMap = null;
 
 const mapData = {
   center: [46.35273, 48.05446],
@@ -371,77 +509,21 @@ function initMap(targetId) {
     attribution: "&copy; OpenStreetMap"
   }).addTo(map);
 
-  const spots = [
-    {
-      name: "Salon Aura",
-      type: "Парикмахерская",
-      rating: "4.8",
-      discount: "Скидка 15% на окрашивание",
-      promo: "AURA15",
-      hot: "Бесплатная укладка при записи сегодня",
-      coords: [46.3473, 48.0361]
-    },
-    {
-      name: "Glow Beauty Store",
-      type: "Бьюти-магазин",
-      rating: "4.6",
-      discount: "Скидка 10% на уходовые наборы",
-      promo: "GLOW10",
-      hot: "Подарок: мини-сыворотка к каждому заказу",
-      coords: [46.3545, 48.0472]
-    },
-    {
-      name: "Lash Lab",
-      type: "Студия ресниц",
-      rating: "4.9",
-      discount: "Скидка 12% на ламинирование",
-      promo: "LASH12",
-      hot: "Экспресс-диагностика формы бесплатно",
-      coords: [46.3419, 48.0288]
-    },
-    {
-      name: "Nail Bar 17",
-      type: "Маникюр",
-      rating: "4.7",
-      discount: "Скидка 20% на первый визит",
-      promo: "NAIL20",
-      hot: "Дизайн одного ногтя в подарок",
-      coords: [46.3579, 48.0335]
-    },
-    {
-      name: "Browline",
-      type: "Брови и макияж",
-      rating: "4.5",
-      discount: "Скидка 8% на коррекцию + окрашивание",
-      promo: "BROW8",
-      hot: "Маска для зоны глаз в подарок",
-      coords: [46.3521, 48.0214]
-    },
-    {
-      name: "SPA Voda",
-      type: "SPA",
-      rating: "4.9",
-      discount: "Скидка 18% на массаж спины",
-      promo: "SPA18",
-      hot: "Чайная церемония бесплатно",
-      coords: [46.3358, 48.0449]
-    }
-  ];
+  buyerSpots.forEach((spot) => {
+    const marker = L.marker(spot.coords).addTo(map).bindPopup(renderSpotPopup(spot), { autoPan: false, closeButton: true });
+    buyerMarkersById.set(spot.id, marker);
+  });
 
-  spots.forEach((spot) => {
-    const popupHtml = `
-      <div class="map-popup">
-        <h4>${spot.name}</h4>
-        <p>${spot.type} • Рейтинг ${spot.rating}</p>
-        <div class="tag">${spot.discount}</div>
-        <div class="tag">Промокод: ${spot.promo}</div>
-        <div class="tag">Горячее: ${spot.hot}</div>
-      </div>
-    `;
-    L.marker(spot.coords).addTo(map).bindPopup(popupHtml, {
-      autoPan: false,
-      closeButton: true
-    });
+  map.on("popupopen", (event) => {
+    const popupEl = event.popup && event.popup.getElement ? event.popup.getElement() : null;
+    if (!popupEl) return;
+    const visitBtn = popupEl.querySelector(".popup-visit-btn[data-spot-id]");
+    if (!visitBtn) return;
+    visitBtn.addEventListener("click", (clickEvent) => {
+      clickEvent.preventDefault();
+      clickEvent.stopPropagation();
+      verifySpotVisit(visitBtn.dataset.spotId || "");
+    }, { once: true });
   });
 
   map.whenReady(() => {
@@ -456,22 +538,13 @@ function initMap(targetId) {
 
 function ensureBuyerMap() {
   if (!astrakhanMapEl || !window.L) return;
-  if (!buyerMap) {
-    buyerMap = initMap("astrakhanMap");
-  }
-  setTimeout(() => {
-    buyerMap.invalidateSize();
-    buyerMap.setView(mapData.center, mapData.zoom, { animate: false });
-  }, 200);
+  if (!buyerMap) buyerMap = initMap("astrakhanMap");
+  setTimeout(() => buyerMap.invalidateSize(), 120);
 }
 
-function ensureOwnerMap() {
-  if (!astrakhanMapOwnerEl || !window.L) return;
-  if (!ownerMap) {
-    ownerMap = initMap("astrakhanMapOwner");
-  }
-  setTimeout(() => {
-    ownerMap.invalidateSize();
-    ownerMap.setView(mapData.center, mapData.zoom, { animate: false });
-  }, 200);
-}
+showScreen("buyer");
+setOfferSlide(0);
+setSubscriptionRole("buyer");
+updateOwnerPricingUI();
+updateBuyerPricingUI();
+updateBuyerGamificationUI();
