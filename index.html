@@ -299,34 +299,72 @@
       <main class="screen screen-cabinet" id="cabinetScreen">
         <section class="hero">
           <div class="label">ЛИЧНЫЙ КАБИНЕТ</div>
-          <h2>Доступ активирован.</h2>
-          <p class="lead">Кнопки ниже открывают материалы и инструменты кабинета.</p>
+          <h2>Панель статистики</h2>
+          <p class="lead">Смотрите показатели по бизнесу и личную статистику покупателя в одном экране.</p>
         </section>
 
-        <section class="cards">
-          <div class="card action" data-action="book">
-            <h3>Книга</h3>
-            <p>Открыть методику.</p>
-            <span class="chip">Открыть</span>
+        <section class="cabinet-switch">
+          <button class="cabinet-tab active" id="cabTabBusiness">Статистика бизнеса</button>
+          <button class="cabinet-tab" id="cabTabBuyer">Статистика покупателя</button>
+        </section>
+
+        <section class="cab-panel active" id="cabBusinessPanel">
+          <div class="card">
+            <h3>Посещения карточки бизнеса</h3>
+            <p><span class="hud-value" id="bizStatVisits">0</span></p>
           </div>
-          <div class="card action" data-action="chat">
-            <h3>Чат</h3>
-            <p>Войти в сообщество и посмотреть обсуждения.</p>
-            <span class="chip">Войти</span>
+          <div class="card">
+            <h3>Использовано промокодов</h3>
+            <p><span class="hud-value" id="bizStatPromosUsed">0</span></p>
           </div>
-          <div class="card action" data-action="audit">
-            <h3>Ежемесячный аудит</h3>
-            <p>Онлайн-трансляция с чатом.</p>
-            <span class="chip">Смотреть</span>
+          <div class="card">
+            <h3>Активные предложения</h3>
+            <p><span class="hud-value" id="bizStatOffers">0</span></p>
           </div>
-          <div class="card action" data-action="bundle">
-            <h3>Готовые связки</h3>
-            <p>Получить тексты, креативы и скрипты.</p>
-            <span class="chip">Получить</span>
+          <div class="card">
+            <h3>Конверсия по промокодам</h3>
+            <p><span class="hud-value" id="bizStatConversion">0%</span></p>
+          </div>
+          <div class="card">
+            <h3>Прогноз выручки по подписке</h3>
+            <p><span class="hud-value" id="bizStatRevenue">0 RUB</span></p>
+          </div>
+          <div class="card">
+            <h3>Текущий тариф</h3>
+            <p id="bizStatTariff">-</p>
+          </div>
+          <div class="card">
+            <h3>Динамика бизнеса (7 дней)</h3>
+            <div class="mini-chart" id="bizTrendChart" aria-label="График динамики бизнеса"></div>
           </div>
         </section>
 
-        <section class="message" id="cabinetMessage"></section>
+        <section class="cab-panel" id="cabBuyerPanel">
+          <div class="card">
+            <h3>Баллы</h3>
+            <p><span class="hud-value" id="cabBuyerPoints">0</span></p>
+          </div>
+          <div class="card">
+            <h3>Подтверждённые посещения</h3>
+            <p><span class="hud-value" id="cabBuyerVisits">0</span></p>
+          </div>
+          <div class="card">
+            <h3>Уровень</h3>
+            <p><span class="hud-value" id="cabBuyerLevel">Новичок</span></p>
+          </div>
+          <div class="card">
+            <h3>Использовано промокодов</h3>
+            <p><span class="hud-value" id="cabBuyerPromos">0</span></p>
+          </div>
+          <div class="card">
+            <h3>Суммарная выгода</h3>
+            <p><span class="hud-value" id="cabBuyerSavings">0 RUB</span></p>
+          </div>
+          <div class="card">
+            <h3>Активность покупателя (7 дней)</h3>
+            <div class="mini-chart" id="buyerTrendChart" aria-label="График активности покупателя"></div>
+          </div>
+        </section>
 
       </main>
 

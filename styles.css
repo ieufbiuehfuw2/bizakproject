@@ -372,6 +372,116 @@ body {
   display: grid;
 }
 
+.cabinet-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.cabinet-tab {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d8e1f2;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.cabinet-tab.active {
+  color: #0b1a2a;
+  border-color: rgba(182, 236, 255, 0.95);
+  background: linear-gradient(135deg, #9ae9ff, #9fd7ff);
+}
+
+.cabinet-tab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(56, 113, 171, 0.24);
+}
+
+.cab-panel {
+  display: none;
+  margin-top: 12px;
+  gap: 10px;
+}
+
+.cab-panel.active {
+  display: grid;
+}
+
+.mini-chart {
+  margin-top: 8px;
+  height: 78px;
+  border-radius: 12px;
+  border: 1px solid rgba(190, 233, 255, 0.28);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: end;
+  gap: 6px;
+}
+
+.mini-col {
+  position: relative;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  height: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.mini-bar {
+  width: 100%;
+  border-radius: 8px;
+  min-height: 6px;
+  background: linear-gradient(180deg, rgba(174, 231, 255, 0.95), rgba(123, 187, 255, 0.92));
+  box-shadow: 0 4px 10px rgba(65, 128, 199, 0.35);
+  transition: height 0.35s ease;
+}
+
+.mini-bar.biz {
+  background: linear-gradient(180deg, rgba(153, 231, 255, 0.95), rgba(109, 175, 255, 0.9));
+}
+
+.mini-bar.buyer {
+  background: linear-gradient(180deg, rgba(162, 245, 225, 0.95), rgba(102, 203, 178, 0.9));
+}
+
+.mini-value {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translate(-50%, 8px) scale(0.85);
+  opacity: 0;
+  pointer-events: none;
+  min-width: 28px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #d8eeff;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(190, 233, 255, 0.65);
+  background: linear-gradient(135deg, rgba(28, 51, 82, 0.95), rgba(20, 35, 62, 0.95));
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.2s ease, transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mini-col.show-value .mini-value {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+.mini-col.show-value .mini-bar {
+  filter: brightness(1.12);
+}
+
 .plan-card {
   position: relative;
   border: 1px solid var(--line);

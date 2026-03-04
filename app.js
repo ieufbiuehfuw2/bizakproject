@@ -6,7 +6,6 @@ const cabinetScreen = document.getElementById("cabinetScreen");
 const ownerSubscriptionScreen = document.getElementById("ownerSubscriptionScreen");
 
 const offerMessage = document.getElementById("offerMessage");
-const cabinetMessage = document.getElementById("cabinetMessage");
 const buyerMessage = document.getElementById("buyerMessage");
 const ownerMessage = document.getElementById("ownerMessage");
 
@@ -28,6 +27,23 @@ const questVisit3State = document.getElementById("questVisit3State");
 const questVisit6State = document.getElementById("questVisit6State");
 const questVisit10State = document.getElementById("questVisit10State");
 const openOwnerFormBtn = document.getElementById("openOwnerFormBtn");
+const cabTabBusiness = document.getElementById("cabTabBusiness");
+const cabTabBuyer = document.getElementById("cabTabBuyer");
+const cabBusinessPanel = document.getElementById("cabBusinessPanel");
+const cabBuyerPanel = document.getElementById("cabBuyerPanel");
+const bizStatVisits = document.getElementById("bizStatVisits");
+const bizStatPromosUsed = document.getElementById("bizStatPromosUsed");
+const bizStatOffers = document.getElementById("bizStatOffers");
+const bizStatConversion = document.getElementById("bizStatConversion");
+const bizStatRevenue = document.getElementById("bizStatRevenue");
+const bizStatTariff = document.getElementById("bizStatTariff");
+const cabBuyerPoints = document.getElementById("cabBuyerPoints");
+const cabBuyerVisits = document.getElementById("cabBuyerVisits");
+const cabBuyerLevel = document.getElementById("cabBuyerLevel");
+const cabBuyerPromos = document.getElementById("cabBuyerPromos");
+const cabBuyerSavings = document.getElementById("cabBuyerSavings");
+const bizTrendChart = document.getElementById("bizTrendChart");
+const buyerTrendChart = document.getElementById("buyerTrendChart");
 const subRoleBuyer = document.getElementById("subRoleBuyer");
 const subRoleOwner = document.getElementById("subRoleOwner");
 const subPanelBuyer = document.getElementById("subPanelBuyer");
@@ -108,6 +124,7 @@ const buyerSpots = [
 let toastTimer = null;
 let armedBuyerTier = "";
 let armedOwnerTier = "";
+let cabinetView = "business";
 
 const ownerPrices = {
   month: {
@@ -154,6 +171,7 @@ function updateOwnerPricingUI() {
     card.classList.toggle("active", isActive);
     card.classList.toggle("confirm-ready", isActive && armedOwnerTier === ownerTier);
   });
+  updateCabinetStats();
 }
 
 function updateBuyerPricingUI() {
@@ -186,6 +204,7 @@ function showScreen(target) {
   else if (offerScreen) offerScreen.classList.add("active");
 
   if (target === "buyer") ensureBuyerMap();
+  if (target === "cabinet") updateCabinetStats();
   updateBottomNav(target);
 }
 
@@ -261,6 +280,7 @@ function updateBuyerGamificationUI() {
   if (buyerStreakValue) buyerStreakValue.textContent = String(buyerVisits);
   if (buyerLevelValue) buyerLevelValue.textContent = getBuyerLevelLabel(buyerPoints);
   updateMissionProgressUI();
+  updateCabinetStats();
 }
 
 function getBuyerLevelLabel(points) {
@@ -386,6 +406,80 @@ function setPaymentBilling(billing) {
   }
 }
 
+function setCabinetView(view) {
+  cabinetView = view === "buyer" ? "buyer" : "business";
+  if (cabTabBusiness) cabTabBusiness.classList.toggle("active", cabinetView === "business");
+  if (cabTabBuyer) cabTabBuyer.classList.toggle("active", cabinetView === "buyer");
+  if (cabBusinessPanel) cabBusinessPanel.classList.toggle("active", cabinetView === "business");
+  if (cabBuyerPanel) cabBuyerPanel.classList.toggle("active", cabinetView === "buyer");
+}
+
+function updateCabinetStats() {
+  const usedPromos = verifiedVisitedSpots.size;
+  const businessVisits = 120 + buyerVisits * 9;
+  const businessPromoUsed = 28 + usedPromos * 2;
+  const activeOffers = 6 + (ownerTier === "pro" ? 5 : ownerTier === "plus" ? 3 : 1);
+  const conversionValue = businessVisits > 0 ? ((businessPromoUsed / businessVisits) * 100).toFixed(1) : "0.0";
+  const expectedRevenue = businessPromoUsed * 890;
+
+  if (bizStatVisits) bizStatVisits.textContent = String(businessVisits);
+  if (bizStatPromosUsed) bizStatPromosUsed.textContent = String(businessPromoUsed);
+  if (bizStatOffers) bizStatOffers.textContent = String(activeOffers);
+  if (bizStatConversion) bizStatConversion.textContent = `${conversionValue}%`;
+  if (bizStatRevenue) bizStatRevenue.textContent = `${expectedRevenue.toLocaleString("ru-RU")} RUB`;
+  if (bizStatTariff) {
+    const tariffName = ownerTier.toUpperCase();
+    const periodLabel = ownerBilling === "year" ? "годовая" : "ежемесячная";
+    bizStatTariff.textContent = `${tariffName} • ${periodLabel}`;
+  }
+
+  if (cabBuyerPoints) cabBuyerPoints.textContent = String(buyerPoints);
+  if (cabBuyerVisits) cabBuyerVisits.textContent = String(buyerVisits);
+  if (cabBuyerLevel) cabBuyerLevel.textContent = getBuyerLevelLabel(buyerPoints);
+  if (cabBuyerPromos) cabBuyerPromos.textContent = String(usedPromos);
+  if (cabBuyerSavings) {
+    const savings = usedPromos * 340 + Math.floor(buyerPoints * 0.8);
+    cabBuyerSavings.textContent = `${savings.toLocaleString("ru-RU")} RUB`;
+  }
+
+  const businessTrend = Array.from({ length: 7 }, (_, i) => {
+    const base = 22 + i * 3;
+    const boost = ownerTier === "pro" ? 16 : ownerTier === "plus" ? 10 : 5;
+    const activity = Math.min(22, buyerVisits * 2);
+    return base + boost + activity + ((i % 2) ? 4 : 0);
+  });
+
+  const buyerTrend = Array.from({ length: 7 }, (_, i) => {
+    const pace = Math.min(18, Math.floor(buyerPoints / 40));
+    const visitBoost = Math.min(14, buyerVisits);
+    return 12 + pace + visitBoost + ((i % 3) ? 3 : 0) + i;
+  });
+
+  renderMiniChart(bizTrendChart, businessTrend, "biz");
+  renderMiniChart(buyerTrendChart, buyerTrend, "buyer");
+}
+
+function renderMiniChart(container, values, variant) {
+  if (!container || !Array.isArray(values) || values.length === 0) return;
+  const maxVal = Math.max(...values, 1);
+  container.innerHTML = values.map((value) => {
+    const height = Math.max(8, Math.round((value / maxVal) * 62));
+    return `<button class="mini-col" type="button" data-value="${value}" aria-label="Значение ${value}"><span class="mini-value">${value}</span><span class="mini-bar ${variant}" style="height:${height}px" title="${value}"></span></button>`;
+  }).join("");
+}
+
+function bindMiniChartInteraction(container) {
+  if (!container) return;
+  container.addEventListener("click", (event) => {
+    const col = event.target instanceof Element ? event.target.closest(".mini-col") : null;
+    if (!col) return;
+    const cols = container.querySelectorAll(".mini-col");
+    const willShow = !col.classList.contains("show-value");
+    cols.forEach((item) => item.classList.remove("show-value"));
+    if (willShow) col.classList.add("show-value");
+  });
+}
+
 if (navBuyer) navBuyer.addEventListener("click", () => showScreen("buyer"));
 if (navOwner) navOwner.addEventListener("click", () => showScreen("owner"));
 if (navSubscription) navSubscription.addEventListener("click", () => showScreen("ownerSubscription"));
@@ -399,6 +493,8 @@ if (buyerStartBtn) {
 if (openOwnerFormBtn) openOwnerFormBtn.addEventListener("click", () => showScreen("owner"));
 if (subRoleBuyer) subRoleBuyer.addEventListener("click", () => setSubscriptionRole("buyer"));
 if (subRoleOwner) subRoleOwner.addEventListener("click", () => setSubscriptionRole("owner"));
+if (cabTabBusiness) cabTabBusiness.addEventListener("click", () => setCabinetView("business"));
+if (cabTabBuyer) cabTabBuyer.addEventListener("click", () => setCabinetView("buyer"));
 if (modalBillingMonth) modalBillingMonth.addEventListener("click", () => setPaymentBilling("month"));
 if (modalBillingYear) modalBillingYear.addEventListener("click", () => setPaymentBilling("year"));
 ownerPlanCards.forEach((card) => {
@@ -545,6 +641,9 @@ function ensureBuyerMap() {
 showScreen("buyer");
 setOfferSlide(0);
 setSubscriptionRole("buyer");
+setCabinetView("business");
 updateOwnerPricingUI();
 updateBuyerPricingUI();
 updateBuyerGamificationUI();
+bindMiniChartInteraction(bizTrendChart);
+bindMiniChartInteraction(buyerTrendChart);
